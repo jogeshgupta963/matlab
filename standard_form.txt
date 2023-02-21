@@ -1,0 +1,24 @@
+clc 
+clear
+
+%% Z = 3x1 + 5x2
+
+%% x1 + 2x2 <= 2000
+%% x1 + x2 <= 1500
+%%      x2 >= 600
+
+a = [ 1 2 ; 1 1 ; 0 1 ];
+b = [2000 ; 1500 ; 600];
+c = [ 3 5 ];
+
+Ineq = [ 0 0 1 ];
+idx = find(Ineq == 1);
+
+i = eye(size(a,1));
+i(idx,:) = -i(idx,:);
+
+mat = [ a, i, b];
+
+matt = array2table(mat);
+matt.Properties.VariableNames(1:size(mat,2)) = {'x1','x2','s1','s2','s3','b'};
+disp(matt);
