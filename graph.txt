@@ -1,0 +1,88 @@
+%% question
+%% Z = 3x1 + 5x2
+
+%%  x1 + 2x2 <=2000
+%%  x1 + x2 <= 1500
+%%  x2 <= 600
+
+a = [1 2;1 1; 0 1];
+b = [2000 ; 1500 ; 600];
+c = [3,5];
+
+x1 = 0:100:max(b);
+x11 = ( b(1) - a(1,1)*x1 ) / a(1,2); 
+x12 = ( b(2) - a(2,1)*x1 ) / a(2,2); 
+x13 = ( b(3) - a(3,1)*x1 ) / a(3,2); 
+
+x11 = max(0,x11);
+x12 = max(0,x12);
+x13 = max(0,x13);
+
+plot(x1,x11,'r',x1,x12,'b',x1,x13,'g');
+xlabel('Value of x1');
+ylabel('Value of x2');
+legend('x1 + 2x2 <=2000','x1 + x2 <= 1500','x2 <= 600');
+%% find xy axis points
+
+cx1 = find(x1 == 0);
+c1 = find(x11 == 0);
+c2 = find(x12 == 0);
+c3 = find(x13 == 0);
+
+
+line1 = [x1(:,[c1 cx1]) ; x11(:,[c1,cx1])]';
+line2 = [x1(:,[c2 cx1]) ; x12(:,[c2,cx1])]';
+line3 = [x1(:,[c3 cx1]) ; x13(:,[c3,cx1])]';
+
+ corner_points = unique([line1;line2;line3],"rows");
+
+%% intersection points
+int_points=[];
+for i=1:size(a,1)
+    a1 = a(i,:);
+    b1 = b(i,:);
+    for j=i+1:size(a,1)
+        a2 = a(j,:);
+        b2 = b(j,:);
+        lhs = [a1;a2];
+        rhs = [b1;b2];
+        ip = lhs\rhs;
+        int_points= [int_points,ip];
+    end
+end
+%%intersection_points = int_points'
+int_points = int_points';
+all_points = unique([int_points;corner_points],"rows");
+
+x = all_points(:,1);
+y = all_points(:,2);
+constraint1 = x + 2*y -2000;
+ns1 = find(constraint1 > 0);
+all_points(ns1,:)=[];
+
+
+x = all_points(:,1);
+y = all_points(:,2);
+constraint2 = x + y -1500;
+ns2 = find(constraint2 > 0);
+all_points(ns2,:)=[];
+
+x = all_points(:,1);
+y = all_points(:,2);
+constraint3 = y -600;
+ns3 = find(constraint3 > 0);
+all_points(ns3,:)=[];
+
+Z=[];
+
+disp(all_points);
+for i=1:size(all_points,1)
+    Z(i,:) = sum(all_points(i,:)*c');
+end
+
+ans = [all_points Z];
+[val,loc] = max(Z);
+optimal_soln = ans(loc,:);
+
+p = array2table(optimal_soln);
+p.Properties.VariableNames(1:size(optimal_soln,2)) = {'x1','x2','b'};
